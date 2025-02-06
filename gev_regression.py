@@ -1,72 +1,53 @@
-import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
-# Generate synthetic datasets for demonstration (replace with actual datasets)
-datasets = {
-    "ecoli": np.random.rand(10, 2),
-    "haberman": np.random.rand(10, 2),
-    "glass0": np.random.rand(10, 2),
-    "vowel0": np.random.rand(10, 2),
-    "wisconsin": np.random.rand(10, 2),
-    "segment0": np.random.rand(10, 2),
-}
+# Example data (replace with your actual data)
+iterations = np.arange(10)  # X-axis: 0 to 9
+log_loss_gradient = [0.9, 0.7, 0.55, 0.45, 0.35, 0.28, 0.22, 0.19, 0.16, 0.14]
+log_loss_hessian = [0.8, 0.6, 0.5, 0.4, 0.32, 0.26, 0.2, 0.18, 0.15, 0.12]
+log_loss_proposed = [0.7, 0.5, 0.4, 0.3, 0.25, 0.2, 0.18, 0.15, 0.12, 0.1]
 
-# Log-loss data for the plots (gradient, Hessian, proposed methods)
-log_loss_data = {
-    "gradient": [np.exp(-0.5 * i) + 0.02 * np.random.rand() for i in range(10)],
-    "hessian": [np.exp(-0.6 * i) + 0.02 * np.random.rand() for i in range(10)],
-    "proposed": [np.exp(-0.8 * i) + 0.01 * np.random.rand() for i in range(10)],
-}
+# Dataset names, y-axis limits, and custom y-ticks
+datasets = [
+    ("ecoli-0-3-4_vs_5", (0.1, 1.0), np.round(np.linspace(0.1, 1.0, 10), 2)),  # Y-axis ticks: 0.1 to 1.0
+    ("haberman", (0.52, 0.68), np.round(np.linspace(0.52, 0.68, 9), 2)),        # Y-axis ticks: 0.52 to 0.68
+    ("glass0", (0.50, 0.66), np.round(np.linspace(0.50, 0.66, 9), 2)),          # Y-axis ticks: 0.50 to 0.66
+    ("vowel0", (0.1, 1.0), np.round(np.linspace(0.1, 1.0, 10), 2)),             # Y-axis ticks: 0.1 to 1.0
+    ("wisconsin", (0.25, 0.70), np.round(np.linspace(0.25, 0.70, 10), 2)),      # Y-axis ticks: 0.25 to 0.70
+    ("segment0", (0.0, 1.0), [0.0, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9, 1.0]),    # Y-axis ticks: Custom list
+]
 
-# Table data (Brier scores for each method and dataset)
-table_data = {
-    "dataset": ["ecoli", "haberman", "glass0", "vowel0", "wisconsin", "segment0"],
-    "GEV Regression": np.random.rand(6) / 10,
-    "LOGIT": np.random.rand(6) / 10,
-    "PROBIT": np.random.rand(6) / 10,
-    "CLOGLOG": np.random.rand(6) / 10,
-}
-
-# Convert table data to DataFrame
-table_df = pd.DataFrame(table_data)
-
-# Plot log-loss graphs for each dataset
-fig, axes = plt.subplots(3, 2, figsize=(10, 10))
+# Create the subplots
+fig, axes = plt.subplots(3, 2, figsize=(8, 10))
+axes = axes.flatten()  # Flatten the 2D array of axes for easier iteration
 fig.suptitle("Log-Loss vs Iterations", fontsize=16)
 
-datasets_list = list(datasets.keys())
+# Define line styles
+line_styles = {
+    "gradient": {"color": "red", "linestyle": ":", "label": "gradient", "linewidth": 2},
+    "hessian": {"color": "blue", "linestyle": "--", "label": "Hessian", "linewidth": 2},
+    "proposed": {"color": "green", "linestyle": "-", "label": "proposed", "linewidth": 2},
+}
 
-for i, ax in enumerate(axes.flatten()):
-    if i >= len(datasets_list):
-        ax.axis("off")
-        continue
+# Plot each dataset with corresponding y-axis limits and custom ticks
+for i, (dataset, y_limits, y_ticks) in enumerate(datasets):
+    ax = axes[i]
+    ax.plot(iterations, log_loss_gradient, **line_styles["gradient"])
+    ax.plot(iterations, log_loss_hessian, **line_styles["hessian"])
+    ax.plot(iterations, log_loss_proposed, **line_styles["proposed"])
+    
+    ax.set_title(dataset, fontsize=12)
+    ax.set_xlabel("Iterations", fontsize=10)
+    ax.set_ylabel("Log-Loss", fontsize=10)
+    ax.grid(True, linestyle=':', color='black', alpha=0.6)  # Matching grid style
+    ax.legend(fontsize=8, loc="best")  # Legend settings
 
-    dataset_name = datasets_list[i]
-    ax.plot(range(10), log_loss_data["gradient"], "r--", label="gradient")
-    ax.plot(range(10), log_loss_data["hessian"], "b--", label="hessian")
-    ax.plot(range(10), log_loss_data["proposed"], "g-", label="proposed")
+    # Set specific x-axis and y-axis limits and ticks for each plot
+    ax.set_xlim(0, 9)  # X-axis: Iterations from 0 to 9
+    ax.set_xticks(range(0, 10))  # Tick marks at 0, 1, 2, ..., 9
+    ax.set_ylim(*y_limits)  # Y-axis: Based on specific limits
+    ax.set_yticks(y_ticks)  # Custom y-ticks
 
-    ax.set_title(dataset_name, fontsize=10)
-    ax.set_xlabel("Iterations")
-    ax.set_ylabel("Log-Loss")
-    ax.legend()
-
-plt.tight_layout(rect=[0, 0, 1, 0.96])
-
-# Save the graph
-plt.savefig("log_loss_graphs.png")
+# Adjust layout to make the figure look like the uploaded image
+plt.tight_layout(rect=[0, 0, 1, 0.96])  # Adjust for the overall title
 plt.show()
-
-# Save table as CSV
-table_df.to_csv("brier_scores.csv", index=False)
-
-# Print sample of the dataset (for viewing)
-for name, data in datasets.items():
-    print(f"Sample data from {name} dataset:")
-    print(data[:5])  # Show the first 5 rows
-    print()
-
-# Print the table
-print("Brier Scores Table:")
-print(table_df)
