@@ -1,53 +1,51 @@
-import matplotlib.pyplot as plt
-import numpy as np
-
-# Example data (replace with your actual data)
-iterations = np.arange(10)  # X-axis: 0 to 9
-log_loss_gradient = [0.9, 0.7, 0.55, 0.45, 0.35, 0.28, 0.22, 0.19, 0.16, 0.14]
-log_loss_hessian = [0.8, 0.6, 0.5, 0.4, 0.32, 0.26, 0.2, 0.18, 0.15, 0.12]
-log_loss_proposed = [0.7, 0.5, 0.4, 0.3, 0.25, 0.2, 0.18, 0.15, 0.12, 0.1]
-
-# Dataset names, y-axis limits, and custom y-ticks
+# Define datasets
 datasets = [
-    ("ecoli-0-3-4_vs_5", (0.1, 1.0), np.round(np.linspace(0.1, 1.0, 10), 2)),  # Y-axis ticks: 0.1 to 1.0
-    ("haberman", (0.52, 0.68), np.round(np.linspace(0.52, 0.68, 9), 2)),        # Y-axis ticks: 0.52 to 0.68
-    ("glass0", (0.50, 0.66), np.round(np.linspace(0.50, 0.66, 9), 2)),          # Y-axis ticks: 0.50 to 0.66
-    ("vowel0", (0.1, 1.0), np.round(np.linspace(0.1, 1.0, 10), 2)),             # Y-axis ticks: 0.1 to 1.0
-    ("wisconsin", (0.25, 0.70), np.round(np.linspace(0.25, 0.70, 10), 2)),      # Y-axis ticks: 0.25 to 0.70
-    ("segment0", (0.0, 1.0), [0.0, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9, 1.0]),    # Y-axis ticks: Custom list
+    "wisconsin", "glass0", "haberman", "segment0", "ecoli0345", "vowel0"
 ]
 
-# Create the subplots
-fig, axes = plt.subplots(3, 2, figsize=(8, 10))
-axes = axes.flatten()  # Flatten the 2D array of axes for easier iteration
-fig.suptitle("Log-Loss vs Iterations", fontsize=16)
+# Define model configurations
+models = [
+    "GEV REGRESSION", "LOGIT", "PROBIT", "CLOGLOG",
+    "SMOTE + LOGIT", "SMOTE + PROBIT", "SMOTE + CLOGLOG"
+]
 
-# Define line styles
-line_styles = {
-    "gradient": {"color": "red", "linestyle": ":", "label": "gradient", "linewidth": 2},
-    "hessian": {"color": "blue", "linestyle": "--", "label": "Hessian", "linewidth": 2},
-    "proposed": {"color": "green", "linestyle": "-", "label": "proposed", "linewidth": 2},
+# Example metric values
+brier_scores = {
+    "wisconsin": [0.02079, 0.02303, 0.02348, 0.03024, 0.02700, 0.02336, 0.03024],
+    "glass0": [0.16470, 0.17362, 0.17290, 0.17676, 0.17202, 0.18016, 0.18098],
+    "haberman": [0.17612, 0.18368, 0.17867, 0.31276, 0.19870, 0.20477, 0.26332],
+    "segment0": [0.01048, 0.00362, 0.00738, 0.00188, 0.00644, 0.01023, 0.00507],
+    "ecoli0345": [0.03727, 0.05425, 0.05506, 0.05044, 0.04556, 0.05739, 0.04792],
+    "vowel0": [0.02448, 0.01959, 0.01796, 0.01858, 0.02548, 0.02711, 0.04561],
 }
 
-# Plot each dataset with corresponding y-axis limits and custom ticks
-for i, (dataset, y_limits, y_ticks) in enumerate(datasets):
-    ax = axes[i]
-    ax.plot(iterations, log_loss_gradient, **line_styles["gradient"])
-    ax.plot(iterations, log_loss_hessian, **line_styles["hessian"])
-    ax.plot(iterations, log_loss_proposed, **line_styles["proposed"])
-    
-    ax.set_title(dataset, fontsize=12)
-    ax.set_xlabel("Iterations", fontsize=10)
-    ax.set_ylabel("Log-Loss", fontsize=10)
-    ax.grid(True, linestyle=':', color='black', alpha=0.6)  # Matching grid style
-    ax.legend(fontsize=8, loc="best")  # Legend settings
+calibration_loss = {
+    "wisconsin": [0.00657, 0.00906, 0.00813, 0.01361, 0.00842, 0.00921, 0.01098],
+    "glass0": [0.02193, 0.04284, 0.03958, 0.03788, 0.03893, 0.03807, 0.04539],
+    "haberman": [0.01654, 0.02184, 0.01799, 0.12724, 0.04014, 0.04166, 0.08679],
+    "segment0": [0.00647, 0.00007, 0.00012, 0.00004, 0.00040, 0.00089, 0.00014],
+    "ecoli0345": [0.01962, 0.01885, 0.02237, 0.01657, 0.01733, 0.02424, 0.01280],
+    "vowel0": [0.00656, 0.00577, 0.00415, 0.00352, 0.00973, 0.01324, 0.00524],
+}
 
-    # Set specific x-axis and y-axis limits and ticks for each plot
-    ax.set_xlim(0, 9)  # X-axis: Iterations from 0 to 9
-    ax.set_xticks(range(0, 10))  # Tick marks at 0, 1, 2, ..., 9
-    ax.set_ylim(*y_limits)  # Y-axis: Based on specific limits
-    ax.set_yticks(y_ticks)  # Custom y-ticks
+auc_scores = {
+    "wisconsin": [0.99597, 0.99572, 0.99529, 0.99301, 0.99422, 0.99515, 0.99077],
+    "glass0": [0.81107, 0.80853, 0.81152, 0.80221, 0.82353, 0.81672, 0.80487],
+    "haberman": [0.69776, 0.65641, 0.67929, 0.61919, 0.66894, 0.65025, 0.62733],
+    "segment0": [0.99785, 0.49236, 0.58165, 0.39720, 0.69134, 0.89009, 0.68938],
+    "ecoli0345": [0.93765, 0.84090, 0.86636, 0.81296, 0.57299, 0.79059, 0.86682],
+    "vowel0": [0.99036, 0.99325, 0.99338, 0.98184, 0.99372, 0.99313, 0.84329],
+}
 
-# Adjust layout to make the figure look like the uploaded image
-plt.tight_layout(rect=[0, 0, 1, 0.96])  # Adjust for the overall title
-plt.show()
+# Function to print results
+def print_results(metric_name, metric_values):
+    print(f"\nTable: RESULTS ON THE DATASETS IN TERMS OF {metric_name.upper()}.")
+    print("DATASET    " + " ".join([f"{model:<12}" for model in models]))
+    for dataset in datasets:
+        values = " ".join([f"{val:.5f}" for val in metric_values[dataset]])
+        print(f"{dataset:<10} {values}")
+
+# Print all results
+print_results("Brier Score", brier_scores)
+print_results("Calibration Loss", calibration_loss)
+print_results("AUC Score", auc_scores)
